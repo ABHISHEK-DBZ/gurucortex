@@ -1,155 +1,148 @@
-# 🚀 GuruCortex - AI Learning Companion
+# 🧠 GuruCortex — Next-Gen AI Learning OS
 
-> **A 100% Local, Privacy-First AI Learning Companion** — Built by Team ZenForge for the Google Solution Challenge
+> **An Intelligent, Multimodal Learning Platform powered by Retrieval-Augmented Generation (RAG) and Groq LPU High-Speed Reasoning.**
 
-[![GitHub](https://img.shields.io/badge/GitHub-GuruCortex-blue?logo=github)](https://github.com/Paritosh2681/ZenForge)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)](https://www.python.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?logo=node.js)](https://nodejs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](https://www.docker.com/)
+[![Live Frontend](https://img.shields.io/badge/Live%20Demo-Azure%20Cloud-0078D4?style=for-the-badge&logo=microsoftazure)](https://zenforge-frontend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io)
+[![API Docs](https://img.shields.io/badge/Swagger%20Docs-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://zenforge-backend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io/docs)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue?style=for-the-badge&logo=python)](https://python.org/)
+[![Groq LPU](https://img.shields.io/badge/AI%20Engine-Groq%20LPU-orange?style=for-the-badge&logo=openai)](https://groq.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://docker.com)
 
 ---
 
-## 📋 Overview
+## 🌐 Live Production Deployments (Microsoft Azure)
 
-**GuruCortex** is a full-stack, local-first **Retrieval-Augmented Generation (RAG)** application that transforms how you learn from documents. It combines a modern Next.js frontend with a powerful FastAPI backend to deliver an intelligent, privacy-conscious learning experience—all running securely on your local device.
+| Service | Environment | Live URL |
+| :--- | :--- | :--- |
+| **Frontend Application** | Azure Container Apps | [https://zenforge-frontend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io](https://zenforge-frontend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io) |
+| **Backend API (FastAPI)** | Azure Container Apps | [https://zenforge-backend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io](https://zenforge-backend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io) |
+| **Interactive API Docs** | Swagger / OpenAPI | [https://zenforge-backend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io/docs](https://zenforge-backend.wonderfulfield-6d6f3fba.centralindia.azurecontainerapps.io/docs) |
 
-### Why GuruCortex?
+---
 
-- **🔒 Complete Privacy:** 100% local processing, zero cloud APIs, no data telemetry
-- **⚡ Instant Setup:** Single-command deployment with Docker or native scripts
-- **🎓 Smart Learning:** AI-powered document analysis, quiz generation, and spaced repetition
-- **🎨 Modern Interface:** Beautiful, responsive UI built with Next.js and Tailwind CSS
-- **🔌 Offline-Ready:** Works completely offline after initial model download
+## 🚀 Overview
+
+**GuruCortex** is a comprehensive, production-grade learning operating system designed to dramatically accelerate knowledge retention, comprehension, and mastery.
+
+By uniting **FastAPI**, **Next.js 14**, **ChromaDB**, and the ultra-low latency **Groq LPU inference engine**, GuruCortex enables students and professionals to interact with complex documents, test their understanding via adaptive quizzes, visualize core concepts through automated diagrams, and learn by teaching an AI pupil.
 
 ---
 
 ## 🌟 Key Features
 
-### 📚 Document Intelligence
-- **Multi-Format Support:** PDF, DOCX, PPTX, TXT
-- **Automatic Chunking:** Intelligent text segmentation for optimal retrieval
-- **Semantic Search:** Find relevant content using AI-powered similarity matching
-- **Citation Source Tracking:** Know exactly where answers come from
+### 1. ⚡ Groq LPU High-Speed Deep Reasoning
+- **Primary Reasoning Model:** Powered by `openai/gpt-oss-120b` (Deep Reasoning & Thinking Process) with `openai/gpt-oss-20b` fallback.
+- **Thinking Process Trace:** Real-time visibility into the AI's internal reasoning chain (`> 🧠 Thinking & Reasoning Process`) before delivering the final response.
+- **Offline / Local Fallback:** Supports local execution through **Ollama** (`mistral:7b`) for 100% air-gapped, privacy-first environments.
 
-### 🤖 AI-Powered Learning
-- **Local LLM Integration:** Run Mistral-7B, Llama-3.2, or other models via Ollama
-- **Context-Aware Responses:** RAG engine retrieves relevant document excerpts for accurate answers
-- **Generative Diagrams:** Auto-generates Mermaid diagrams from document content
-- **Multi-Turn Conversations:** Maintain context across multiple queries
+### 2. 📚 Intelligent Multi-Format RAG
+- **Document Ingestion:** Full extraction support for PDF, DOCX, PPTX, and TXT files.
+- **Semantic Vector Retrieval:** ChromaDB vector storage with `sentence-transformers` embeddings (`all-MiniLM-L6-v2`).
+- **Verifiable Citations:** Responses cite exact document sources, pages, and excerpts to eliminate hallucinations.
 
-### 📊 Advanced Assessment
-- **Intelligent Quiz Generation:** Auto-generate MCQ, True/False, and short-answer questions
-- **Spaced Repetition (SM-2):** Scientifically-proven algorithm for long-term retention
-- **Mastery Tracking:** Monitor progress from Novice to Advanced levels
-- **Learning Analytics:** Detailed insights on study patterns and performance
+### 3. 👨‍🏫 Protégé Effect Mode (Learning by Teaching)
+- Scientific research demonstrates that teaching is the most effective learning mechanism.
+- The AI adopts the role of an eager, curious student who asks thoughtful questions and challenges your explanations to surface knowledge gaps.
 
-### 🎯 Multimodal Capabilities
-- **Attention Tracking:** Real-time focus monitoring via webcam (OpenCV, MediaPipe)
-- **Voice Input:** Browser-based speech recognition (no external APIs)
-- **Text-to-Speech:** Local audio output with natural voice synthesis
-- **Image Processing:** Upload and analyze images with local models
+### 4. 📊 Automated Visualizations & Mind Maps
+- Automatically translates complex study topics into **Mermaid diagrams**, flowcharts, and mind maps directly inside the chat interface.
 
-### 💾 Data Persistence
-- **Conversation History:** SQLite-backed persistent conversations
-- **Vector Embeddings:** ChromaDB local vector database
-- **Learning Progress:** Tracked study sessions and quiz results
-- **Customizable Storage:** All data in `./data` directory for easy backup
+### 5. 🎯 Adaptive Assessments & Spaced Repetition (SM-2)
+- Auto-generates multiple-choice, true/false, and short-answer quizzes based on uploaded study materials.
+- Utilizes the **SuperMemo-2 (SM-2)** algorithm to schedule reviews precisely when memory retention is predicted to decay.
+
+### 6. 👁️ Multimodal Attention & Voice
+- **Attention Tracking:** Optional webcam-based focus detection using MediaPipe and OpenCV to gauge engagement during study sessions.
+- **Voice Synthesis & Transcription:** Browser-native speech recognition and natural voice playback.
+
+### 7. 💻 Interactive Code Sandbox
+- Run, test, and debug code snippets live inside the browser with immediate execution feedback.
 
 ---
 
-## 🛠️ Technology Stack
+## 🏗️ Architecture
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | Next.js 14, React 18, TypeScript | Modern web UI with SSR |
-| | Tailwind CSS, Framer Motion | Styling and animations |
-| | Mermaid.js, react-markdown | Diagrams and content rendering |
-| | Axios | HTTP API client |
-| **Backend** | FastAPI, Uvicorn | High-performance REST API |
-| | Python 3.11+ | Core runtime |
-| | Pydantic | Data validation |
-| **RAG/ML** | ChromaDB | Vector database |
-| | sentence-transformers | Embeddings generation |
-| | LangChain | RAG orchestration |
-| | PyPDF2, python-docx, python-pptx | Document parsing |
-| **LLM** | Ollama | Local inference engine |
-| | Google Gemma(2B/9B), Llama-3.2 | Large language models |
-| **Storage** | SQLite | Metadata & conversations |
-| | Local filesystem | Document & vector storage |
-| **DevOps** | Docker, Docker Compose | Containerization & orchestration |
+```mermaid
+flowchart TD
+    User([User]) <--> Frontend[Next.js 14 Frontend\nTailwind CSS + Lucide Icons]
+    Frontend <-->|REST API + CORS| Backend[FastAPI Backend\nPython 3.11]
+    
+    subgraph "Core Backend Services"
+        Backend --> RAG[RAG Engine\nSemantic Chunking & Search]
+        Backend --> Protege[Protégé Engine\nInteractive Socratic Dialogue]
+        Backend --> Quiz[Assessment Engine\nSM-2 Spaced Repetition]
+        Backend --> CodeExec[Code Execution Sandbox]
+    end
+
+    subgraph "Storage & Vector Engine"
+        RAG --> Chroma[(ChromaDB Vector Store)]
+        Backend --> SQLite[(SQLite Metadata DB)]
+    end
+
+    subgraph "AI Inference Layer"
+        Backend -->|Groq LPU API| Groq[Groq LPU Engine\nopenai/gpt-oss-120b]
+        Backend -.->|Local Fallback| Ollama[Ollama Local Server\nmistral:7b]
+    end
+```
 
 ---
 
-## 🚀 Quick Start
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Lucide React, Cytoscape.js.
+- **Backend:** FastAPI, Python 3.11, Uvicorn, Gunicorn, Pydantic v2.
+- **AI & RAG:** Groq API (`openai/gpt-oss-120b`), Ollama, ChromaDB, Sentence-Transformers, LangChain splitters.
+- **Infrastructure & Cloud:** Microsoft Azure Container Apps, Azure Container Registry (ACR), Docker.
+
+---
+
+## 🚦 Getting Started Locally
 
 ### Prerequisites
+- **Node.js** 18.x or later
+- **Python** 3.11 or later
+- **Git**
 
-- **Windows, macOS, or Linux**
-- **Docker & Docker Compose** (recommended) OR **Python 3.11+** & **Node.js 18+**
-- **Ollama** installed with a model pulled (e.g., `ollama pull llama3.2`)
+### Method 1: One-Click Windows Launcher
+Double-click `run-dev.bat` in the project root. It will:
+1. Activate the Python virtual environment and start FastAPI on port 8000.
+2. Launch Next.js on port 3000.
+3. Automatically open `http://localhost:3000` in your default browser.
 
-### Option 1: One-Command Setup (Windows)
+---
 
+### Method 2: Manual Setup
+
+#### 1. Clone the Repository
 ```bash
-# Clone and navigate to project
-git clone https://github.com/Paritosh2681/ZenForge.git
-cd ZenForge
-
-# Run complete system startup
-.\start_complete_system.bat
+git clone https://github.com/ABHISHEK-DBZ/gurucortex.git
+cd gurucortex
 ```
 
-Access the application at:
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000
-- **API Docs:** http://localhost:8000/docs
-
-### Option 2: Docker Deployment (Recommended)
-
+#### 2. Backend Setup
 ```bash
-# Start full stack with Docker
-docker-compose -f docker-compose.full.yml up -d
-
-# View logs
-docker-compose logs -f
-
-# Access the same URLs as above
-```
-
-**Stop services:**
-```bash
-docker-compose down
-```
-
-Then open http://localhost:3000 in your browser.
-
-### #Option 3: Manual Native Setup
-
-#### Backend Setup
-```bash
-# Navigate to backend
 cd backend
 
-# Create virtual environment
-python -m venv venv
-
-# Activate environment (Windows)
-venv\Scripts\activate
-# Or on macOS/Linux:
-source venv/bin/activate
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Start server
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+# Configure environment variables
+cp .env.example .env
+# Edit .env and set your GROQ_API_KEY
 
-#### Frontend Setup (in a new terminal)
+# Start backend server
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+The backend will be available at: `http://localhost:8000` (API Docs: `http://localhost:8000/docs`).
+
+#### 3. Frontend Setup
 ```bash
-# Navigate to frontend
-cd frontend
+cd ../frontend
 
 # Install dependencies
 npm install
@@ -157,534 +150,67 @@ npm install
 # Start development server
 npm run dev
 ```
-
-Then open http://localhost:3000 in your browser.
-
----
-
-## 📁 Project Structure
-
-```
-gurucortex/
-├── 📄 README.md                    # This file
-├── 📄 PROJECT_SUMMARY.md           # Detailed project overview
-├── 📄 QUICKSTART.md                # Quick reference guide
-├── 📄 OFFLINE_MODE.md              # Offline functionality guide
-│
-├── backend/                        # Python FastAPI Application
-│   ├── app/
-│   │   ├── main.py                 # FastAPI app & RAG engine
-│   │   ├── config.py               # Configuration management
-│   │   ├── models/
-│   │   │   └── schemas.py          # Pydantic data models
-│   │   ├── services/
-│   │   │   ├── document_processor.py   # PDF/DOCX/PPTX parsing
-│   │   │   ├── vector_store.py        # ChromaDB integration
-│   │   │   ├── llm_client.py          # Ollama communication
-│   │   │   └── rag_engine.py          # RAG orchestration
-│   │   └── routers/
-│   │       ├── documents.py        # Upload endpoints
-│   │       └── chat.py             # Query endpoints
-│   ├── requirements.txt            # Python dependencies
-│   ├── requirements-minimal.txt    # Minimal dependencies
-│   ├── Dockerfile                  # Container image
-│   └── test_phase*.py              # Test scripts
-│
-├── frontend/                       # Next.js React Application
-│   ├── app/
-│   │   ├── page.tsx               # Dashboard
-│   │   ├── layout.tsx             # Root layout
-│   │   ├── globals.css            # Global styles
-│   │   └── dashboard/             # Dashboard pages
-│   ├── components/                # React components
-│   │   ├── ChatInterface.tsx      # Chat UI
-│   │   ├── DocumentUploader.tsx   # File upload
-│   │   ├── MermaidRenderer.tsx    # Diagram rendering
-│   │   ├── AssessmentHub.tsx      # Quiz interface
-│   │   └── AnalyticsDashboard.tsx # Analytics display
-│   ├── lib/
-│   │   └── api-client.ts          # API integration
-│   ├── public/                    # Static assets
-│   ├── package.json               # NPM dependencies
-│   ├── tsconfig.json              # TypeScript config
-│   ├── tailwind.config.js         # Tailwind CSS config
-│   ├── next.config.js             # Next.js config
-│   └── Dockerfile                 # Container image
-│
-├── data/                          # Local Data Storage
-│   ├── uploads/                   # Uploaded documents
-│   ├── vectordb/                  # ChromaDB storage
-│   ├── cache/                     # Cached models
-│   ├── conversations.db           # SQLite database
-│   └── analytics/                 # Learning data
-│
-├── docs/                          # Comprehensive Documentation
-│   ├── PHASE_1_SPEC.md           # Phase 1 specification
-│   ├── PHASE_2_SPEC.md           # Phase 2 specification
-│   ├── PHASE_3_SPEC.md           # Phase 3 specification
-│   ├── PHASE_4_SPEC.md           # Phase 4 specification
-│   ├── PHASE_4_SUMMARY.md        # Implementation summary
-│   ├── DOCKER_SETUP.md           # Docker guide
-│   └── ARCHITECTURE.md           # System architecture
-│
-├── scripts/                       # Utility Scripts
-│   ├── docker-start.bat          # Windows Docker launcher
-│   ├── docker-start.sh           # Linux/Mac Docker launcher
-│   ├── setup.bat                 # Windows setup
-│   └── setup.sh                  # Linux/Mac setup
-│
-├── docker-compose.yml             # Main Docker configuration
-├── docker-compose.full.yml        # Full stack with Ollama
-└── .gitignore                     # Git ignore rules
-```
+The frontend will be available at: `http://localhost:3000`.
 
 ---
 
-## 🔄 How It Works
-
-### 1️⃣ Document Upload
-Users upload documents (PDF, DOCX, PPTX, or TXT) through the web interface.
-
-### 2️⃣ Processing Pipeline
-```
-Document Upload
-    ↓
-[Text Extraction] (PyPDF2, python-docx, python-pptx)
-    ↓
-[Chunking] (Semantic segmentation)
-    ↓
-[Embedding] (sentence-transformers)
-    ↓
-[Storage] (ChromaDB Vector Database)
-```
-
-### 3️⃣ Query Processing
-```
-User Question
-    ↓
-[Embedding] (Convert query to vector)
-    ↓
-[Retrieval] (Find similar chunks from ChromaDB)
-    ↓
-[Context Building] (Combine chunks for LLM)
-    ↓
-[LLM Processing] (Ollama generates response)
-    ↓
-[Response Delivery] (Streamed to frontend)
-```
-
-### 4️⃣ Assessment & Learning
-```
-User Document
-    ↓
-[Topic Extraction] (Identify key concepts)
-    ↓
-[Quiz Generation] (Create questions)
-    ↓
-[Answer Evaluation] (Check against rubric)
-    ↓
-[Spaced Repetition] (SM-2 algorithm scheduling)
-    ↓
-[Analytics Update] (Track progress)
-```
-
----
-
-## 📚 Supported File Types
-
-| Format | Extension | Status |
-|--------|-----------|--------|
-| Portable Document Format | `.pdf` | ✅ Fully Supported |
-| Microsoft Word | `.docx` | ✅ Fully Supported |
-| Microsoft PowerPoint | `.pptx` | ✅ Fully Supported |
-| Plain Text | `.txt`, `.md` | ✅ Fully Supported |
-| Python Code | `.py` | ✅ Fully Supported |
-| Images (Analysis) | `.jpg`, `.png`, `.gif` | ✅ Supported via ML |
-
----
-
-## 🎓 Features Overview
-
-### Phase 1: Core RAG Foundation ✅ COMPLETE
-- Document upload and processing
-- Vector embedding and search
-- Chat interface with context
-- Local LLM integration
-- API documentation
-
-### Phase 2: Multimodal & Accessibility ✅ COMPLETE
-- Image upload and analysis
-- Attention tracking (webcam)
-- Voice input (Speech Recognition)
-- Text-to-Speech output
-- Multi-language support
-
-### Phase 3: Conversations & Context ✅ COMPLETE
-- Persistent conversation history
-- Context window management
-- Query rewriting
-- Conversation search
-- Export functionality
-
-### Phase 4: Assessment & Learning Analytics ✅ COMPLETE
-- Quiz generation (MCQ, T/F, Short Answer)
-- Automatic grading
-- Spaced repetition scheduling
-- Mastery level tracking
-- Learning analytics dashboard
-- Study recommendations
-
----
-
-## 🔒 Privacy & Security
-
-### Zero Cloud Dependency
-- **No external APIs** are called for processing documents
-- **No telemetry** or usage tracking
-- **No API keys** required for core features
-- **All data stays local** in the `./data` directory
-GuruCortex
-### Offline Capability
-ZenForge works completely offline after initial setup:
-1. Documents are processed locally
-2. Embeddings are generated and stored locally
-3. LLM inference via Ollama (running on your machine)
-4. No internet connection needed for core features
-
-### Data Persistence
-- **SQLite Database:** Conversations and quiz results
-- **ChromaDB:** Vector embeddings for semantic search
-- **File Storage:** Uploaded documents in `./data/uploads`
-- **You own your data:** Full control and accessibility
-
-### Security Best Practices
-- CORS enabled only for localhost
-- No sensitive data in logs
-- Secure file upload validation
-- Rate limiting on API endpoints
-
----
-
-GuruCortexfline Mode Setup
-
-ZenForge includes dedicated offline setup scripts. All components can run without internet:
-
+### Method 3: Docker Compose
 ```bash
-# Automated offline setup (Windows)
-.\Setup-Offline-AI.bat
-
-# Or use Python setup (cross-platform)
-python setup_offline.py
-
-# Start in offline mode
-.\Start-GuruCortex.bat
-```
-
-**Offline Verification:**
-1. Disconnect from internet
-2. Launch ZenForge
-3. Verify document processing, chat, quizzes, and analytics work
-
-See [OFFLINE_MODE.md](OFFLINE_MODE.md) for detailed instructions.
-
----
-
-## 🌐 API Documentation
-
-### Auto-Generated OpenAPI Docs
-Once the backend is running, visit:
-```
-http://localhost:8000/docs
-```
-
-### Key Endpoints
-
-#### Documents
-- `POST /api/documents/upload` - Upload a document
-- `GET /api/documents` - List uploaded documents
-- `DELETE /api/documents/{doc_id}` - Delete a document
-
-#### Chat
-- `POST /api/chat/query` - Query documents with streaming response
-- `GET /api/chat/history` - Get conversation history
-- `DELETE /api/chat/clear` - Clear conversation
-
-#### Assessment
-- `POST /api/assessment/generate-quiz` - Generate a quiz
-- `POST /api/assessment/submit-answer` - Submit quiz answer
-- `GET /api/assessment/results` - Get quiz results
-- `GET /api/assessment/analytics` - Get learning analytics
-
-#### Health
-- `GET /api/health` - System health status
-- `GET /api/config` - Current configuration
-
----
-
-## 🐳 Docker Deployment
-
-### Using Docker Compose (Recommended)
-
-```bash
-# Start services
-docker-compose -f docker-compose.full.yml up -d
-
-# Check service status
-docker ps
-
-# View logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-
-# Stop services
-docker-compose down
-```
-
-### Building Custom Containers
-
-```bash
-# Build just backend
-docker build -t zenforge-backend ./backend
-
-# Build just frontend
-docker build -t zenforge-frontend ./frontend
-
-# Run containers manually
-docker run -p 8000:8000 zenforge-backend
-docker run -p 3000:3000 zenforge-frontend
+# Start both frontend and backend in isolated containers
+docker compose up -d --build
 ```
 
 ---
 
-## 🔧 Configuration
+## ⚙️ Environment Variables
 
-### Backend Configuration
-Edit `backend/app/config.py`:
-```python
-# Model settings
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # or any sentence-transformers model
-LLM_MODEL = "mistral:7b"
+Create a `backend/.env` file with the following configurations:
 
-# Vector DB settings
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 50
+```ini
+# Application
+DEBUG=true
 
-# API settings
-MAX_UPLOAD_SIZE_MB = 100
-OLLAMA_BASE_URL = "http://localhost:11434"
-```
+# AI Provider Configuration
+LLM_PROVIDER=groq
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
+GROQ_FALLBACK_MODEL=openai/gpt-oss-20b
+INCLUDE_THINKING_IN_CHAT=true
 
-### Frontend Configuration
-Edit `frontend/lib/api-client.ts`:
-```typescript
-// API endpoint configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+# Local Fallback (Ollama)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral:7b
 
-// Request timeout (ms)
-const REQUEST_TIMEOUT = 30000;
+# Embeddings & RAG
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+TOP_K_RETRIEVAL=4
+SIMILARITY_THRESHOLD=0.3
 ```
 
 ---
 
-## 🚀 Performance Tips
+## 📡 API Reference Overview
 
-### Optimize Embeddings
-Use smaller models for faster processing:
-```python
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Smaller, faster
-# Instead of: "all-mpnet-base-v2"      # Larger, more accurate
-```
-
-### Batch Processing
-When uploading multiple documents, use the batch API:
-```bash
-# Process multiple files efficiently
-POST /api/documents/batch-upload
-```
-
-### Vector DB Optimization
-- Regularly clean old vectors: `POST /api/admin/cleanup`
-- Monitor DB size: Check `data/vectordb/`
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/v1/health` | `GET` | Health check endpoint returning API operational status |
+| `/chat/query` | `POST` | RAG-powered query with verified citations & thinking trace |
+| `/documents/upload` | `POST` | Upload and vectorize study materials (PDF, DOCX, TXT) |
+| `/protege/start` | `POST` | Initialize Protégé mode interactive learning session |
+| `/assessments/generate` | `POST` | Auto-generate adaptive quizzes and flashcards |
+| `/planner/generate` | `POST` | Generate customized curriculum and study schedules |
+| `/code/execute` | `POST` | Execute Python code in a sandboxed runtime |
+| `/multimodal/analyze-attention`| `POST` | Process webcam frame for attention tracking |
 
 ---
 
-## 📖 Documentation
-
-- **[QUICKSTART.md](QUICKSTART.md)** - Fast setup guide
-- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Detailed project overview
-- **[OFFLINE_MODE.md](OFFLINE_MODE.md)** - Offline operation guide
-- **[docs/PHASE_4_SUMMARY.md](docs/PHASE_4_SUMMARY.md)** - Complete feature summary
-- **[docs/DOCKER_SETUP.md](docs/DOCKER_SETUP.md)** - Docker deployment guide
+## 🛡️ Security & Privacy
+- **Zero Hardcoded Secrets:** Credentials, API tokens, and sensitive keys are managed exclusively via environment variables and never checked into source control.
+- **Air-Gapped Local Mode:** Fully supports local-only execution using Ollama for environments requiring strict data residency and compliance.
 
 ---
 
-## 🐛 Troubleshooting
+## 👥 Contributors & License
 
-### Backend Won't Start
-```bash
-# Check Python version (needs 3.11+)
-python --version
-
-# Reinstall dependencies
-pip install -r requirements.txt --force-reinstall
-
-# Check if port 8000 is in use
-netstat -ano | findstr :8000
-```
-
-### Frontend Shows Connection Error
-```bash
-# Clear Next.js cache
-rm -rf frontend/.next
-
-# Reinstall dependencies
-cd frontend && npm install
-
-# Verify backend is running: http://localhost:8000/docs
-```
-
-### Ollama Not Connecting
-```bash
-# Check if Ollama is running
-curl http://localhost:11434/api/tags
-
-# Pull a model if needed
-ollama pull llama3.2
-
-# Restart Ollama service
-```
-
-### High Memory Usage
-- Use smaller embedding model: `all-MiniLM-L6-v2`
-- Reduce chunk size: `CHUNK_SIZE = 256`
-- Clear cache: `DELETE /api/admin/cache`
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how you can help:
-
-### Getting Started
-1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/zenforge.git`
-3. Create a branch: `git checkout -b feature/amazing-feature`
-4. Make your changes and commit: `git commit -m 'Add amazing feature'`
-5. Push to your fork: `git push origin feature/amazing-feature`
-6. Open a Pull Request
-
-### Development Guidelines
-- Follow existing code style
-- Add tests for new features
-- Update documentation
-- Test in both native and Docker environments
-
-### Areas for Contribution
-- 🐛 Bug fixes and improvements
-- 📚 Documentation enhancement
-- 🎨 UI/UX improvements
-- 🚀 Performance optimization
-- 🌐 Localization support
-- 🧪 Test coverage
-- 🔌 Plugin/extension development
-
----
-
-## 📋 Roadmap
-
-### Completed ✅
-- Phase 1: Core RAG Foundation
-- Phase 2: Multimodal Capabilities
-- Phase 3: Conversation Management
-- Phase 4: Assessment & Learning Analytics
-
-### Future Plans 🎯
-- Plugin system for custom features
-- Mobile app (iOS/Android)
-- Advanced visualization tools
-- Collaborative learning features
-- API for third-party integrations
-- Advanced NLP features (entity extraction, sentiment)
-- Support for more file formats
-
----
-
-## 📊 Project Statistics
-
-- **Backend:** ~2000+ lines of Python/FastAPI code
-- **Frontend:** ~3000+ lines of React/TypeScript code
-- **Documentation:** 10+ comprehensive guides
-- **Supported Models:** 50+ via Ollama
-- **File Types:** 6+ formats supported
-- **API Endpoints:** 20+ RESTful endpoints
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file for details.
-
-### MIT License Summary
-- ✅ Free for personal and commercial use
-- ✅ You can modify and distribute
-- ❌ No liability or warranty provided
-- ✅ Must include license in distributions
-
----
-
-## 🙏 Acknowledgments
-
-### Built For
-- **AMD Slingshot Hackathon** - The organizing event
-- **Open Source Community** - For amazing libraries and tools
-
-### Key Technologies
-- [FastAPI](https://fastapi.tiangolo.com/) - Modern API framework
-- [Next.js](https://nextjs.org/) - React framework
-- [ChromaDB](https://www.trychroma.com/) - Vector database
-- [Ollama](https://ollama.ai/) - Local LLM platform
-- [LangChain](https://python.langchain.com/) - LLM orchestration
-- [sentence-transformers](https://www.sbert.net/) - Embeddings
-
-### Contributors
-- **Team ZenForge** - Project team
-- **Hackathon Organizers** - AMD & event sponsors
-
----
-
-## 💬 Support & Contact
-
-### Getting Help
-1. **Check Documentation:** See [docs/](docs/) folder first
-2. **Search Issues:** Look for similar problems on GitHub Issues
-3. **Create New Issue:** Describe the problem with steps to reproduce
-4. **Join Community:** Discussions and Q&A in GitHub Discussions
-
-### Report a Bug
-Open an issue with:
-- OS and version
-- Python/Node.js version
-- Steps to reproduce
-- Expected vs actual behavior
-- Error logs
-
-### Feature Requests
-Describe the feature and why it would be useful
-
----
-
-## 🎉 Conclusion
-
-GuruCortex represents a new paradigm in AI-assisted learning—combining the power of large language models with the privacy-first approach that users deserve. Whether you're a student, educator, researcher, or lifelong learner, GuruCortex provides the tools to learn smarter, faster, and more safely.
-
-**Join us in building the future of privacy-conscious AI learning.**
-
----
-
-<div align="center">
-
-**GuruCortex | Built with ❤️ by Team ZenForge**
-
-⭐ If you find this project useful, please consider giving it a star! ⭐
-
-</div>
+- **Author / Maintainer:** Abhishek ([@ABHISHEK-DBZ](https://github.com/ABHISHEK-DBZ))
+- **License:** Licensed under the [MIT License](LICENSE).
