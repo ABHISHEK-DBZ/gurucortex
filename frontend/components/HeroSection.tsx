@@ -66,7 +66,7 @@ function TerminalLine({
 
   const baseStyles = 'font-mono text-[13px] leading-relaxed';
   
-  const typeStyles = {
+  const typeStyles: Record<string, string> = {
     command: 'text-cyan-400',
     status: 'text-purple-400/70 italic',
     check: 'text-emerald-400',

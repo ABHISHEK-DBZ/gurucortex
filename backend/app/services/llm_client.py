@@ -116,25 +116,84 @@ def _extract_mermaid(response_text: str) -> Tuple[Optional[str], str]:
 
     return None, _clean_response_text(response_text)
 
+
 class OllamaClient:
-    """Client for local Ollama LLM inference"""
+    """
+    Unified LLM Client with Groq reasoning model (openai/gpt-oss-120b)
+    and fallback to local Ollama.
+    Maintains backward compatibility with OllamaClient / LLMClient interfaces.
+    """
 
     def __init__(self):
+        self.provider = getattr(settings, "LLM_PROVIDER", "groq")
+        self.groq_api_key = getattr(settings, "GROQ_API_KEY", "")
+        self.groq_model = getattr(settings, "GROQ_MODEL", "openai/gpt-oss-120b")
+        self.groq_fallback_model = getattr(settings, "GROQ_FALLBACK_MODEL", "openai/gpt-oss-20b")
+        self.groq_url = "https://api.groq.com/openai/v1/chat/completions"
+
         self.base_url = settings.OLLAMA_BASE_URL
         self.model = settings.OLLAMA_MODEL
-        self.timeout = httpx.Timeout(120.0, connect=10.0)
+        self.timeout = httpx.Timeout(60.0, connect=10.0)
 
-    async def generate(
+    async def _call_groq(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: float = 0.5,
+        max_tokens: int = 1500,
+        model: Optional[str] = None
+    ) -> Tuple[str, Optional[str]]:
+        """Call Groq API and return (content, reasoning)."""
+        target_model = model or self.groq_model
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        messages.append({"role": "user", "content": prompt})
+
+        headers = {
+            "Authorization": f"Bearer {self.groq_api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": target_model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens
+        }
+
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                response = await client.post(self.groq_url, headers=headers, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                choice_msg = data["choices"][0]["message"]
+                content = choice_msg.get("content", "")
+                reasoning = choice_msg.get("reasoning", None)
+                return content, reasoning
+            except Exception as e:
+                # If primary model fails and fallback is different, try fallback
+                if target_model != self.groq_fallback_model and self.groq_fallback_model:
+                    logger.warning(f"Groq model {target_model} failed ({e}), trying fallback {self.groq_fallback_model}...")
+                    payload["model"] = self.groq_fallback_model
+                    try:
+                        response = await client.post(self.groq_url, headers=headers, json=payload)
+                        response.raise_for_status()
+                        data = response.json()
+                        choice_msg = data["choices"][0]["message"]
+                        return choice_msg.get("content", ""), choice_msg.get("reasoning", None)
+                    except Exception as fallback_err:
+                        logger.error(f"Groq fallback model also failed: {fallback_err}")
+                raise e
+
+    async def _call_ollama(
         self,
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: float = 0.5,
         max_tokens: int = 1000
     ) -> str:
-        """Generate completion from Ollama"""
-
+        """Call local Ollama server."""
         url = f"{self.base_url}/api/generate"
-
         payload = {
             "model": self.model,
             "prompt": prompt,
@@ -144,24 +203,45 @@ class OllamaClient:
                 "num_predict": max_tokens
             }
         }
-
         if system_prompt:
             payload["system"] = system_prompt
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
+            response = await client.post(url, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            return result.get("response", "")
+
+    async def generate(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        temperature: float = 0.5,
+        max_tokens: int = 1000
+    ) -> str:
+        """Generate text completion from Groq or Ollama"""
+        if self.provider == "groq" and self.groq_api_key:
             try:
-                response = await client.post(url, json=payload)
-                response.raise_for_status()
-                result = response.json()
-                return result.get("response", "")
-            except httpx.HTTPError as e:
-                logger.warning(f"Ollama unavailable, using fallback response: {e}")
-                fallback = (
-                    "I cannot reach the local Ollama model right now. "
-                    "Please ensure Ollama is running and the configured model is pulled. "
-                    "Meanwhile, I can still help based on available retrieved context from your documents."
+                content, _ = await self._call_groq(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens
                 )
-                return fallback
+                return content
+            except Exception as e:
+                logger.warning(f"Groq generation failed: {e}. Falling back to Ollama if reachable.")
+                try:
+                    return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
+                except Exception as ollama_err:
+                    logger.error(f"Both Groq and Ollama failed: {ollama_err}")
+                    return f"Error communicating with LLM: {str(e)}"
+        else:
+            try:
+                return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
+            except Exception as e:
+                logger.warning(f"Ollama unavailable: {e}")
+                return "I cannot reach the LLM right now. Please verify your settings."
 
     async def generate_with_context(
         self,
@@ -170,54 +250,75 @@ class OllamaClient:
         generate_diagram: bool = True,
         system_prompt: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Generate response with RAG context and optional Mermaid diagram"""
+        """Generate response with RAG context and optional Mermaid diagram & thinking process"""
 
-        # Build context from retrieved chunks
         context = "\n\n---\n\n".join(context_chunks)
 
-        # System prompt for educational assistance
         if not system_prompt:
-            system_prompt = """You are Guru-Agent, an empathetic AI learning companion. Your role is to:
-1. Help students understand concepts deeply, not just provide answers
-2. Use the Socratic method when appropriate
-3. Break down complex topics into digestible steps
-4. Encourage critical thinking
+            system_prompt = """You are Guru-Agent, an empathetic, highly intelligent AI learning companion and tutor.
+Your role is to:
+1. Help students understand concepts deeply with clear, rational thinking and step-by-step explanations.
+2. Use the Socratic method when appropriate to encourage critical thinking.
+3. Break down complex topics into digestible, logical steps.
 
 CRITICAL RULES:
-- ONLY answer using the provided "Context from study materials".
-- If the answer cannot be found in the context, explicitly say "I do not have enough information in the provided context to answer this." Do not make up information.
-
-When explaining processes, workflows, or hierarchical concepts, YOU MUST include a Mermaid.js diagram.
-Format: End your response with:
-
+- If study material context is provided, base your answers on it. If not found in the context, use your high-level general knowledge to provide a helpful, accurate academic explanation while noting that it is beyond the uploaded documents.
+- When explaining processes, workflows, architectures, or relationships, YOU MUST include a Mermaid.js diagram.
+Format:
 ```mermaid
 [diagram code here]
 ```
-
 Use appropriate diagram types:
-- flowchart TD/LR for processes
+- flowchart TD or LR for processes and workflows
 - graph for relationships
 - classDiagram for structures
 - sequenceDiagram for interactions
 """
 
-        # User prompt with context - optimized for speed
-        user_prompt = f"""Context:
-{context}
+        user_prompt = f"""Context from study materials:
+{context if context else "(No documents uploaded yet. Provide a comprehensive, accurate academic answer.)"}
 
-Question: {query}
+Student Question: {query}
 
-Answer briefly and based ONLY on context. Keep response concise (2-3 paragraphs max)."""
+Provide a well-structured, clear explanation. If applicable, end with a helpful Mermaid diagram."""
 
-        # Generate response - optimized for speed: reduced tokens and context
-        response = await self.generate(
-            prompt=user_prompt,
-            system_prompt=system_prompt,
-            temperature=0.3,  # Slightly higher for faster convergence
-            max_tokens=350  # Reduced from 600 for ~2x faster responses
-        )
+        reasoning_text = None
+        response_text = ""
 
-        mermaid_diagram, cleaned_response = _extract_mermaid(response)
+        if self.provider == "groq" and self.groq_api_key:
+            try:
+                content, reasoning = await self._call_groq(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.3,
+                    max_tokens=1500
+                )
+                response_text = content
+                reasoning_text = reasoning
+            except Exception as e:
+                logger.warning(f"Groq generate_with_context failed: {e}. Trying fallback...")
+                response_text = await self.generate(
+                    prompt=user_prompt,
+                    system_prompt=system_prompt,
+                    temperature=0.3,
+                    max_tokens=800
+                )
+        else:
+            response_text = await self.generate(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                temperature=0.3,
+                max_tokens=800
+            )
+
+        mermaid_diagram, cleaned_response = _extract_mermaid(response_text)
+
+        # Include thinking process if reasoning is present and enabled
+        include_thinking = getattr(settings, "INCLUDE_THINKING_IN_CHAT", True)
+        if reasoning_text and include_thinking and len(reasoning_text.strip()) > 0:
+            formatted_thinking = reasoning_text.strip().replace("\r\n", "\n")
+            thinking_quote = "\n> ".join(formatted_thinking.split("\n"))
+            cleaned_response = f"> 🧠 **Thinking & Reasoning Process:**\n> {thinking_quote}\n\n---\n\n{cleaned_response}"
 
         return {
             "response": cleaned_response,
@@ -225,20 +326,31 @@ Answer briefly and based ONLY on context. Keep response concise (2-3 paragraphs 
         }
 
     async def check_health(self) -> bool:
-        """Check if Ollama is running and model is available"""
-        url = f"{self.base_url}/api/tags"
+        """Check if LLM provider is reachable and active"""
+        if self.provider == "groq" and self.groq_api_key:
+            try:
+                headers = {"Authorization": f"Bearer {self.groq_api_key}"}
+                async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
+                    resp = await client.get("https://api.groq.com/openai/v1/models", headers=headers)
+                    return resp.status_code == 200
+            except Exception as e:
+                logger.warning(f"Groq health check failed: {e}")
+                return False
 
+        # Fallback Ollama health check
+        url = f"{self.base_url}/api/tags"
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.get(url)
                 response.raise_for_status()
                 models = response.json().get("models", [])
-
-                # Check if configured model is available
                 model_names = [m.get("name", "") for m in models]
                 return any(self.model in name for name in model_names)
         except Exception:
             return False
 
-# Alias for backward compatibility with topic_extractor.py
+
+# Aliases for backward compatibility
 LLMClient = OllamaClient
+GroqClient = OllamaClient
+UnifiedLLMClient = OllamaClient

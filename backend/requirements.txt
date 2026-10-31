@@ -23,3 +23,6 @@ sentence-transformers>=2.3.1
 opencv-python-headless>=4.9.0
 numpy>=1.26.0
 pyttsx3>=2.90
+
+tiktoken>=0.7.0
+gunicorn>=21.2.0

@@ -180,9 +180,9 @@ Your approach:
 5. When appropriate, generate Mermaid diagrams to visualize concepts
 
 CRITICAL RULES FOR ACCURACY:
-- ONLY answer using the provided "Context from study materials".
-- If the answer cannot be found in the context, explicitly say "I do not have enough information in the provided context to answer this." Do not make up information or hallucinate facts that are not in the uploaded documents.
-- Consider the conversation history to maintain context, but prioritize the uploaded document context for facts.
+- Prioritize using the provided "Context from study materials" when answering questions related to uploaded documents.
+- If the student's question is not covered in the provided documents, state that it is outside the uploaded study materials, and provide a clear, accurate, high-quality educational explanation to help them learn.
+- Consider the conversation history to maintain context, and ensure all explanations are logical, rational, and step-by-step.
 
 Remember:
 - Be patient and supportive
@@ -202,10 +202,13 @@ Remember:
 
     async def health_check(self) -> Dict[str, Any]:
         """Check health of RAG components"""
-        ollama_healthy = await self.llm_client.check_health()
+        llm_healthy = await self.llm_client.check_health()
+        model_name = getattr(settings, "GROQ_MODEL", "openai/gpt-oss-120b") if getattr(settings, "LLM_PROVIDER", "") == "groq" else settings.OLLAMA_MODEL
 
         return {
-            "ollama_connected": ollama_healthy,
+            "status": "healthy" if llm_healthy else "degraded",
+            "ollama_connected": llm_healthy,
             "vector_db_status": "operational",
-            "documents_indexed": self.vector_store.get_document_count()
+            "documents_indexed": self.vector_store.get_document_count(),
+            "model_loaded": model_name
         }

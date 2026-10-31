@@ -11,10 +11,14 @@ import time
 logger = logging.getLogger(__name__)
 
 try:
+    import numpy as np
+except ImportError:
+    np = None
+
+try:
     import cv2
     import mediapipe as mp
-    import numpy as np
-    ATTENTION_AVAILABLE = True
+    ATTENTION_AVAILABLE = True if np is not None else False
 except ImportError as e:
     ATTENTION_AVAILABLE = False
     logger.warning(f"Attention tracking dependencies not available: {e}")

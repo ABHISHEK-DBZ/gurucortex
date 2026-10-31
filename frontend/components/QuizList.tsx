@@ -68,7 +68,7 @@ export default function QuizList({
       const newQuiz = await api.generateQuiz(request);
 
       console.log('✅ Quiz generated successfully:', newQuiz.id);
-      console.log('  Questions count:', newQuiz.questions?.length || 0);
+      console.log('  Questions count:', newQuiz.question_count || (newQuiz as any).questions?.length || 0);
 
       // Add to list
       setQuizzes([newQuiz, ...quizzes]);

@@ -55,7 +55,7 @@ export default function ProtegeMode() {
     if (!input.trim() || loading) return;
     const userMsg = input.trim();
     setInput('');
-    const newUserMessage = { role: 'user', content: userMsg };
+    const newUserMessage: Message = { role: 'user', content: userMsg };
     setMessages(prev => [...prev, newUserMessage]);
     setLoading(true);
     try {

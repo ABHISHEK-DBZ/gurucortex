@@ -7,12 +7,28 @@ __pycache__/
 env/
 venv/
 ENV/
+.venv/
+backend/.venv/
+
+# Environment and Secrets (CRITICAL)
+.env
+.env.*
+*.env
 backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env*.local
+*.pem
+*.key
+*.secret
 
 # Node
 node_modules/
+frontend/node_modules/
 .next/
+frontend/.next/
 out/
+frontend/out/
 
 # Data & Database (local only - regenerated at runtime)
 data/
@@ -29,14 +45,19 @@ Thumbs.db
 # Logs
 *.log
 logs/
+build_log.txt
 
-# Temp files (Claude, tests, etc.)
+# Archives & Temporary Deployment artifacts
+*.zip
+*.tar.gz
+*.tgz
+frontend_clean/
+webapp_logs_extracted/
+
+# Temp files
 tmpclaude-*
 nul
 test_venv/
 get-pip.py
 *.tmp
-
-# OS
-.DS_Store
-Thumbs.db
+deploy-gcp.bat

@@ -80,7 +80,7 @@ export default function Home() {
 
   if (!mounted) return null;
 
-  const navItems = [
+  const navItems: { label: string; href: string; external?: boolean }[] = [
     { label: "Features", href: "#features" },
     { label: "Demo", href: "#demo" },
     { label: "Docs", href: "#docs" },

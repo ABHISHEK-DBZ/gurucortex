@@ -14,16 +14,23 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0-phase1"
     DEBUG: bool = True
 
-    # Paths (relative to project root)
-    BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-    UPLOAD_DIR: Path = BASE_DIR / "data" / "uploads"
-    VECTOR_DB_DIR: Path = BASE_DIR / "data" / "vectordb"
-    CACHE_DIR: Path = BASE_DIR / "data" / "cache"
+    # Paths (relative to backend root)
+    BASE_DIR: Path = Path(__file__).resolve().parent.parent
+    DATA_DIR: Path = BASE_DIR / "data"
+    UPLOAD_DIR: Path = DATA_DIR / "uploads"
+    VECTOR_DB_DIR: Path = DATA_DIR / "vectordb"
+    CACHE_DIR: Path = DATA_DIR / "cache"
+
+    # LLM Configuration
+    LLM_PROVIDER: str = "groq"  # "groq" or "ollama"
+    GROQ_API_KEY: str = ""  # Set via GROQ_API_KEY environment variable or .env
+    GROQ_MODEL: str = "openai/gpt-oss-120b"  # Best reasoning/thinking model on Groq LPU
+    GROQ_FALLBACK_MODEL: str = "openai/gpt-oss-20b"
+    INCLUDE_THINKING_IN_CHAT: bool = True
 
     # Local LLM Configuration (Ollama)
-    # LLM Configuration
     OLLAMA_BASE_URL: str = "http://host.docker.internal:11434" if os.environ.get("WSL_DISTRO_NAME") else "http://127.0.0.1:11434"
-    OLLAMA_MODEL: str = "mistral:7b"  # Use mistral:7b (installed model)
+    OLLAMA_MODEL: str = "mistral:7b"  # Fallback local model
 
     # Embedding Model (Local via sentence-transformers)
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
@@ -85,6 +92,7 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # Ensure directories exist
+        self.DATA_DIR.mkdir(parents=True, exist_ok=True)
         self.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
         self.VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
         self.CACHE_DIR.mkdir(parents=True, exist_ok=True)
