@@ -8,6 +8,7 @@ httpx>=0.26.0
 python-dotenv>=1.0.0
 aiofiles>=23.2.1
 aiosqlite>=0.19.0
+PyJWT>=2.8.0
 
 # Document Processing
 PyPDF2>=3.0.0
