@@ -1,7 +1,12 @@
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+
+logger = logging.getLogger("gurucortex.api")
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -19,73 +24,76 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Health check endpoint (removed duplicate at line ~104)
+# Health check endpoint
 @app.get("/api/v1/health")
 def api_health_check():
     return {"status": "ok", "message": "API is running"}
 
-# Include routers - using try/except to handle missing dependencies
-try:
-    from app.routers import documents, chat, multimodal, conversations, assessments, analytics
-    from app.services.database import init_database
-    
-    app.include_router(documents.router)
-    app.include_router(chat.router)
-    app.include_router(multimodal.router)  # Phase 2: Multimodal features
-    app.include_router(conversations.router)  # Phase 3: Conversation management
-    app.include_router(assessments.router)  # Phase 4: Assessments & Quizzes
-    app.include_router(analytics.router)  # Phase 4: Learning Analytics
-except Exception as e:
-    print(f"Warning: Could not load some routers: {e}")
-    print("Running in minimal mode with health check endpoints only")
+def _register_router(module_path: str, optional: bool = False) -> bool:
+    """Explicit router registration with isolated error handling and descriptive logging."""
+    try:
+        mod = __import__(module_path, fromlist=["router"])
+        router = getattr(mod, "router", None)
+        if router:
+            app.include_router(router)
+            logger.info(f"Mounted router: {module_path}")
+            return True
+        else:
+            logger.error(f"Module {module_path} has no 'router' attribute")
+            return False
+    except Exception as exc:
+        if optional:
+            logger.warning(f"Optional router '{module_path}' not loaded: {exc}")
+        else:
+            logger.error(f"CRITICAL: Failed to mount router '{module_path}': {exc}", exc_info=True)
+        return False
 
-# Try to include additional optional routers
-try:
-    from app.routers import code_execution
-    app.include_router(code_execution.router)  # Phase 3: Code Execution Sandbox
-except Exception as e:
-    print(f"Warning: Could not load code_execution router: {e}")
+# 1. Core API Routers
+CORE_ROUTERS = [
+    "app.routers.documents",
+    "app.routers.chat",
+    "app.routers.conversations",
+    "app.routers.assessments",
+    "app.routers.analytics",
+]
+for mod in CORE_ROUTERS:
+    _register_router(mod, optional=False)
 
-try:
-    from app.routers import study_planner
-    app.include_router(study_planner.router)  # Phase 5: Study Planner
-except Exception as e:
-    print(f"Warning: Could not load study_planner router: {e}")
+# 2. GuruCortex 2.0 Master Intelligence Routers
+GURUCORTEX_2_ROUTERS = [
+    "app.routers.visual_intelligence",
+    "app.routers.revision",
+    "app.routers.coach",
+    "app.routers.career",
+    "app.routers.focus",
+    "app.routers.parent",
+    "app.routers.institution",
+]
+for mod in GURUCORTEX_2_ROUTERS:
+    _register_router(mod, optional=False)
 
-try:
-    from app.routers import gamification
-    app.include_router(gamification.router)  # Phase 5: Gamification & Badges
-except Exception as e:
-    print(f"Warning: Could not load gamification router: {e}")
+# 3. Optional & Hardware/Experimental Routers
+OPTIONAL_ROUTERS = [
+    "app.routers.multimodal",      # Vision / Attention tracking
+    "app.routers.code_execution",  # Sandboxed code execution
+    "app.routers.study_planner",   # Automated calendar/study planner
+    "app.routers.gamification",    # Badges & Leaderboards
+    "app.routers.podcast",         # Audio narration & podcast generator
+    "app.routers.protege",         # Protege Effect tutor mode
+]
+for mod in OPTIONAL_ROUTERS:
+    _register_router(mod, optional=True)
 
-try:
-    from app.routers import podcast
-    app.include_router(podcast.router)  # Phase 4: Podcast Generation
-except Exception as e:
-    print(f"Warning: Could not load podcast router: {e}")
-
-try:
-    from app.routers import protege
-    app.include_router(protege.router)  # Phase 4: Protege Effect
-except Exception as e:
-    print(f"Warning: Could not load protege router: {e}")
-
-# Initialize database on startup if available
-_init_db_available = False
-try:
-    from app.services.database import init_database as _init_db
-    _init_db_available = True
-except Exception as e:
-    print(f"Warning: Database service not available: {e}")
-
+# Database Startup Lifecycle
 @app.on_event("startup")
 async def startup_event():
-    """Initialize services on application startup"""
-    if _init_db_available:
-        try:
-            await _init_db()
-        except Exception as e:
-            print(f"Warning: Could not initialize database: {e}")
+    """Initialize database and verify system readiness on startup."""
+    try:
+        from app.services.database import init_database
+        await init_database()
+        logger.info("Database initialized successfully.")
+    except Exception as exc:
+        logger.error(f"Failed to initialize database: {exc}", exc_info=True)
 
 @app.get("/")
 async def root():

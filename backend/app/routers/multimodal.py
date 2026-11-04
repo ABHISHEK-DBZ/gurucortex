@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 # Optional heavy imports
 try:
-    import numpy as np
-    import cv2
-    CV2_AVAILABLE = True
-except ImportError:
+    np = None
+    cv2 = None
+    CV2_AVAILABLE = False
+except (ImportError, OSError, Exception) as e:
     CV2_AVAILABLE = False
     logger.warning("OpenCV/numpy not available - attention tracking disabled")
 

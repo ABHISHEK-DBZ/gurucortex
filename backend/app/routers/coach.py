@@ -70,7 +70,16 @@ async def stream_coach_advice(request: CoachStreamRequest):
 
     async def event_generator():
         async for token in llm_client.stream_generate(prompt, system_prompt):
-            yield f"data: {token}\n\n"
+            if not token:
+                continue
+            # Multi-line tokens must become one data: line each so SSE framing stays valid.
+            for line in token.split("\n"):
+                yield f"data: {line}\n"
+            yield "\n"
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )

@@ -26,6 +26,9 @@ class RealityStreamRequest(BaseModel):
     concept: str
     depth: Optional[str] = "comprehensive"
 
+class VisualTitleRequest(BaseModel):
+    title: str
+
 @router.post("/extract/{document_id}", response_model=List[Dict[str, Any]])
 async def extract_concepts_from_document(document_id: str):
     """
@@ -82,6 +85,17 @@ async def get_visual_explanation(concept_id: str):
         logger.error(f"Error generating visual explanation: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate visual explanation")
 
+@router.post("/explanation/by-title", response_model=VisualExplanationResponse)
+async def generate_visual_explanation_by_title(req: VisualTitleRequest):
+    """
+    Generate a visual explanation for a free-form concept title without a document.
+    """
+    try:
+        return await visual_engine.generate_visual_explanation_for_title(req.title)
+    except Exception as e:
+        logger.error(f"Error generating visual explanation by title: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate visual explanation")
+
 @router.post("/reality/stream")
 async def stream_concept_reality(request: RealityStreamRequest):
     """
@@ -103,10 +117,19 @@ async def stream_concept_reality(request: RealityStreamRequest):
 
     async def event_generator():
         async for token in llm_client.stream_generate(prompt, system_prompt):
-            yield f"data: {token}\n\n"
+            if not token:
+                continue
+            # Multi-line tokens must become one data: line each so SSE framing stays valid.
+            for line in token.split("\n"):
+                yield f"data: {line}\n"
+            yield "\n"
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 @router.post("/reality/{topic_name}", response_model=RealityConnectionResponse)
 async def get_concept_reality_connection(topic_name: str, concept_id: Optional[str] = None):

@@ -136,6 +136,10 @@ class OllamaClient:
         self.model = settings.OLLAMA_MODEL
         self.timeout = httpx.Timeout(60.0, connect=10.0)
 
+    def _has_groq_key(self) -> bool:
+        key = (self.groq_api_key or "").strip()
+        return bool(key) and not key.startswith("your_groq_api_key")
+
     async def _call_groq(
         self,
         prompt: str,
@@ -298,11 +302,7 @@ class OllamaClient:
         tokens_yielded = False
 
         # 1. Try Groq streaming if configured with valid key
-        has_groq_key = bool(
-            self.groq_api_key
-            and self.groq_api_key.strip()
-            and not self.groq_api_key.strip().startswith("your_groq_api_key")
-        )
+        has_groq_key = self._has_groq_key()
 
         if self.provider == "groq" and has_groq_key:
             try:
@@ -337,8 +337,8 @@ class OllamaClient:
                     except Exception as fb_err:
                         logger.warning(f"Groq fallback model {self.groq_fallback_model} streaming failed: {fb_err}")
 
-        # 2. Try Ollama local streaming if Groq failed or not configured
-        if not tokens_yielded:
+        # 2. Try Ollama local streaming only when explicitly configured
+        if self.provider == "ollama" and not tokens_yielded:
             try:
                 url = f"{self.base_url}/api/generate"
                 payload = {
@@ -384,10 +384,12 @@ class OllamaClient:
         prompt: str,
         system_prompt: Optional[str] = None,
         temperature: float = 0.5,
-        max_tokens: int = 1000
+        max_tokens: int = 2000
     ) -> str:
-        """Generate text completion from Groq or Ollama"""
-        if self.provider == "groq" and self.groq_api_key:
+        """Generate text completion from Groq (or Ollama when explicitly configured)"""
+        if self.provider == "groq":
+            if not self._has_groq_key():
+                return "GROQ_API_KEY is not configured. Add a valid key to backend/.env."
             try:
                 content, _ = await self._call_groq(
                     prompt=prompt,
@@ -397,18 +399,14 @@ class OllamaClient:
                 )
                 return content
             except Exception as e:
-                logger.warning(f"Groq generation failed: {e}. Falling back to Ollama if reachable.")
-                try:
-                    return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
-                except Exception as ollama_err:
-                    logger.error(f"Both Groq and Ollama failed: {ollama_err}")
-                    return f"Error communicating with LLM: {str(e)}"
-        else:
-            try:
-                return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
-            except Exception as e:
-                logger.warning(f"Ollama unavailable: {e}")
-                return "I cannot reach the LLM right now. Please verify your settings."
+                logger.error(f"Groq generation failed: {e}")
+                return f"Error communicating with Groq: {str(e)}"
+
+        try:
+            return await self._call_ollama(prompt, system_prompt, temperature, max_tokens)
+        except Exception as e:
+            logger.warning(f"Ollama unavailable: {e}")
+            return "I cannot reach the LLM right now. Please verify your settings."
 
     async def generate_with_context(
         self,
@@ -452,13 +450,13 @@ Provide a well-structured, clear explanation. If applicable, end with a helpful 
         reasoning_text = None
         response_text = ""
 
-        if self.provider == "groq" and self.groq_api_key:
+        if self.provider == "groq" and self._has_groq_key():
             try:
                 content, reasoning = await self._call_groq(
                     prompt=user_prompt,
                     system_prompt=system_prompt,
                     temperature=0.3,
-                    max_tokens=1500
+                    max_tokens=2500
                 )
                 response_text = content
                 reasoning_text = reasoning
@@ -468,14 +466,14 @@ Provide a well-structured, clear explanation. If applicable, end with a helpful 
                     prompt=user_prompt,
                     system_prompt=system_prompt,
                     temperature=0.3,
-                    max_tokens=800
+                    max_tokens=1500
                 )
         else:
             response_text = await self.generate(
                 prompt=user_prompt,
                 system_prompt=system_prompt,
                 temperature=0.3,
-                max_tokens=800
+                max_tokens=1500
             )
 
         mermaid_diagram, cleaned_response = _extract_mermaid(response_text)
@@ -494,7 +492,9 @@ Provide a well-structured, clear explanation. If applicable, end with a helpful 
 
     async def check_health(self) -> bool:
         """Check if LLM provider is reachable and active"""
-        if self.provider == "groq" and self.groq_api_key:
+        if self.provider == "groq":
+            if not self._has_groq_key():
+                return False
             try:
                 headers = {"Authorization": f"Bearer {self.groq_api_key}"}
                 async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
@@ -504,7 +504,7 @@ Provide a well-structured, clear explanation. If applicable, end with a helpful 
                 logger.warning(f"Groq health check failed: {e}")
                 return False
 
-        # Fallback Ollama health check
+        # Ollama health check (only when provider is ollama)
         url = f"{self.base_url}/api/tags"
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
