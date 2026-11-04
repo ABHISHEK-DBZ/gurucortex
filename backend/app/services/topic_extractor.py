@@ -245,7 +245,7 @@ JSON array:"""
         try:
             response = await self.llm_client.generate(
                 prompt,
-                max_tokens=500,
+                max_tokens=1500,
                 temperature=0.3
             )
 
@@ -284,7 +284,7 @@ Topic:"""
         try:
             response = await self.llm_client.generate(
                 prompt,
-                max_tokens=20,
+                max_tokens=200,
                 temperature=0.2
             )
 

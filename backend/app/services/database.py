@@ -197,6 +197,222 @@ CREATE INDEX IF NOT EXISTS idx_topic_mastery_topic ON topic_mastery(topic_id);
 CREATE INDEX IF NOT EXISTS idx_badges_category ON badges(category);
 CREATE INDEX IF NOT EXISTS idx_study_plans_date ON study_plans(scheduled_date);
 CREATE INDEX IF NOT EXISTS idx_code_executions_conv ON code_executions(conversation_id);
+
+-- GuruCortex 2.0: Concepts & Document Intelligence
+CREATE TABLE IF NOT EXISTS concepts (
+    id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    category TEXT,
+    page_number INTEGER,
+    section_title TEXT,
+    difficulty_level TEXT CHECK(difficulty_level IN ('beginner', 'intermediate', 'advanced')),
+    summary TEXT,
+    key_terms TEXT,
+    formulas TEXT,
+    dependencies TEXT,
+    extracted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
+);
+
+-- GuruCortex 2.0: Visual Explanations & Animation Scene Specs
+CREATE TABLE IF NOT EXISTS visual_explanations (
+    id TEXT PRIMARY KEY,
+    concept_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    learning_objective TEXT,
+    subject TEXT,
+    scene_spec TEXT NOT NULL,
+    multi_level_explanations TEXT,
+    real_world_analogy TEXT,
+    formulas_definitions TEXT,
+    knowledge_check TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (concept_id) REFERENCES concepts(id) ON DELETE CASCADE
+);
+
+-- GuruCortex 2.0: Concept-to-Reality Connections
+CREATE TABLE IF NOT EXISTS reality_connections (
+    id TEXT PRIMARY KEY,
+    concept_id TEXT,
+    topic_name TEXT NOT NULL,
+    concept_summary TEXT,
+    why_developed TEXT,
+    real_world_uses TEXT,
+    industries TEXT,
+    products TEXT,
+    research_applications TEXT,
+    problems_solved TEXT,
+    limitations TEXT,
+    future_developments TEXT,
+    mini_project TEXT,
+    case_studies TEXT,
+    citations TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: Flashcards & Spaced Repetition (SM-2)
+CREATE TABLE IF NOT EXISTS flashcards (
+    id TEXT PRIMARY KEY,
+    concept_id TEXT,
+    topic_id TEXT,
+    front_prompt TEXT NOT NULL,
+    back_answer TEXT NOT NULL,
+    difficulty TEXT DEFAULT 'medium',
+    repetition_count INTEGER DEFAULT 0,
+    interval_days INTEGER DEFAULT 1,
+    ease_factor REAL DEFAULT 2.5,
+    last_reviewed TIMESTAMP,
+    next_review TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: Cognitive Coach Recommendations
+CREATE TABLE IF NOT EXISTS coach_recommendations (
+    id TEXT PRIMARY KEY,
+    student_id TEXT DEFAULT 'default_student',
+    strategy_name TEXT NOT NULL,
+    rationale TEXT NOT NULL,
+    action_plan TEXT NOT NULL,
+    recommended_duration_mins INTEGER DEFAULT 15,
+    evaluation_criteria TEXT,
+    evidence_source TEXT,
+    status TEXT CHECK(status IN ('suggested', 'in_progress', 'completed', 'dismissed')) DEFAULT 'suggested',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: Student Growth & Project Portfolio
+CREATE TABLE IF NOT EXISTS student_projects (
+    id TEXT PRIMARY KEY,
+    student_id TEXT DEFAULT 'default_student',
+    title TEXT NOT NULL,
+    subject TEXT,
+    related_concept TEXT,
+    description TEXT,
+    skills_demonstrated TEXT,
+    project_url TEXT,
+    status TEXT DEFAULT 'completed',
+    reflections TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: FuturePath Career & Skills Roadmaps
+CREATE TABLE IF NOT EXISTS career_roadmaps (
+    id TEXT PRIMARY KEY,
+    student_id TEXT DEFAULT 'default_student',
+    pathway_title TEXT NOT NULL,
+    related_subjects TEXT,
+    industries TEXT,
+    required_qualifications TEXT,
+    technical_skills TEXT,
+    certifications TEXT,
+    skill_gap_analysis TEXT,
+    learning_roadmap TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: Focus Intelligence & Wellness Logs
+CREATE TABLE IF NOT EXISTS focus_sessions (
+    id TEXT PRIMARY KEY,
+    subject TEXT,
+    target_duration_minutes INTEGER NOT NULL,
+    actual_duration_seconds INTEGER DEFAULT 0,
+    distraction_count INTEGER DEFAULT 0,
+    study_goals TEXT,
+    distraction_notes TEXT,
+    reflection TEXT,
+    productivity_rating INTEGER,
+    started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS wellness_logs (
+    id TEXT PRIMARY KEY,
+    log_date TEXT NOT NULL,
+    bedtime TEXT,
+    wake_time TEXT,
+    sleep_duration_hours REAL,
+    energy_level INTEGER,
+    study_readiness INTEGER,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- GuruCortex 2.0: Parent Connect & Transparency
+CREATE TABLE IF NOT EXISTS parent_profiles (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS parent_student_links (
+    id TEXT PRIMARY KEY,
+    parent_id TEXT NOT NULL,
+    student_id TEXT NOT NULL DEFAULT 'default_student',
+    link_code TEXT UNIQUE NOT NULL,
+    status TEXT CHECK(status IN ('pending', 'active', 'revoked')) DEFAULT 'active',
+    consent_weekly_summary BOOLEAN DEFAULT 1,
+    consent_exam_alerts BOOLEAN DEFAULT 1,
+    consent_missed_session_alerts BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES parent_profiles(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS parent_guidance (
+    id TEXT PRIMARY KEY,
+    parent_id TEXT,
+    observation TEXT NOT NULL,
+    supporting_evidence TEXT NOT NULL,
+    potential_root_cause TEXT,
+    suggested_conversation_starter TEXT NOT NULL,
+    actionable_assistance TEXT NOT NULL,
+    suggested_follow_up TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS parent_notifications (
+    id TEXT PRIMARY KEY,
+    parent_id TEXT NOT NULL,
+    notification_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES parent_profiles(id) ON DELETE CASCADE
+);
+
+-- GuruCortex 2.0: Institutional / Teacher Mode
+CREATE TABLE IF NOT EXISTS classrooms (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    teacher_name TEXT NOT NULL,
+    class_code TEXT UNIQUE NOT NULL,
+    student_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS classroom_assignments (
+    id TEXT PRIMARY KEY,
+    classroom_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    topic TEXT,
+    document_id TEXT,
+    due_date TEXT,
+    instructions TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_concepts_doc ON concepts(document_id);
+CREATE INDEX IF NOT EXISTS idx_visual_concept ON visual_explanations(concept_id);
+CREATE INDEX IF NOT EXISTS idx_flashcards_next_review ON flashcards(next_review);
+CREATE INDEX IF NOT EXISTS idx_focus_sessions_start ON focus_sessions(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_parent_links_student ON parent_student_links(student_id);
+CREATE INDEX IF NOT EXISTS idx_parent_notifications ON parent_notifications(parent_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_classrooms_code ON classrooms(class_code);
+
 """
 
 

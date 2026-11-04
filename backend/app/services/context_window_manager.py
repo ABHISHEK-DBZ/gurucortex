@@ -3,7 +3,10 @@ Context Window Manager: Handles token counting and context window management.
 """
 import logging
 from typing import List, Dict, Any, Optional, Tuple
-import tiktoken
+try:
+    import tiktoken
+except ImportError:
+    tiktoken = None
 
 from app.config import settings
 from app.models.conversation_schemas import Message
