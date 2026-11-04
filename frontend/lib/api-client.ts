@@ -29,7 +29,7 @@ import type {
   MasteryUpdate,
 } from '@/types/analytics';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -83,6 +83,44 @@ export interface HealthCheck {
   ollama_connected: boolean;
   vector_db_status: string;
   documents_indexed: number;
+}
+
+async function streamSSE(
+  path: string,
+  body: unknown,
+  onToken: (token: string) => void,
+  signal?: AbortSignal
+): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!res.ok || !res.body) throw new Error(`Stream failed: ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let match: RegExpMatchArray | null;
+    while ((match = buffer.match(/\r?\n\r?\n/)) && match.index !== undefined) {
+      const rawEvent = buffer.slice(0, match.index);
+      buffer = buffer.slice(match.index + match[0].length);
+      const data = rawEvent
+        .split(/\r?\n/)
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).replace(/^ /, ''))
+        .join('\n');
+      if (data === '[DONE]') return;
+      if (data) onToken(data);
+    }
+  }
 }
 
 // API Methods
@@ -489,6 +527,208 @@ export const api = {
   async deleteDocument(documentId: string): Promise<{ message: string }> {
     const response = await apiClient.delete(`/documents/${documentId}`);
     return response.data;
+  },
+
+  // ================= GuruCortex 2.0 APIs =================
+  // Visual Intelligence Studio
+  async extractConcepts(documentId: string): Promise<any[]> {
+    const res = await apiClient.post(`/api/v1/visual/extract/${documentId}`);
+    return res.data;
+  },
+
+  async getConcepts(documentId: string): Promise<any[]> {
+    const res = await apiClient.get(`/api/v1/visual/concepts/${documentId}`);
+    return res.data;
+  },
+
+  async getVisualExplanation(conceptId: string): Promise<any> {
+    const res = await apiClient.get(`/api/v1/visual/explanation/${conceptId}`);
+    return res.data;
+  },
+
+  async getVisualExplanationByTitle(title: string): Promise<any> {
+    const res = await apiClient.post('/api/v1/visual/explanation/by-title', { title });
+    return res.data;
+  },
+
+  async getRealityConnection(topicName: string, conceptId?: string): Promise<any> {
+    const url = conceptId 
+      ? `/api/v1/visual/reality/${encodeURIComponent(topicName)}?concept_id=${conceptId}`
+      : `/api/v1/visual/reality/${encodeURIComponent(topicName)}`;
+    const res = await apiClient.post(url);
+    return res.data;
+  },
+
+  async streamReality(
+    topic: string,
+    onToken: (token: string) => void,
+    depth: string = 'comprehensive',
+    signal?: AbortSignal
+  ): Promise<void> {
+    return streamSSE('/api/v1/visual/reality/stream', { concept: topic, depth }, onToken, signal);
+  },
+
+  // Revision Intelligence (SM-2 & Flashcards)
+  async getRevisionDashboard(): Promise<any> {
+    const res = await apiClient.get('/api/v1/revision/dashboard');
+    return res.data;
+  },
+
+  async getDueFlashcards(limit: number = 20): Promise<any[]> {
+    const res = await apiClient.get(`/api/v1/revision/flashcards/due?limit=${limit}`);
+    return res.data;
+  },
+
+  async generateFlashcards(documentId?: string, conceptId?: string, count: number = 5): Promise<any[]> {
+    const res = await apiClient.post('/api/v1/revision/flashcards/generate', {
+      document_id: documentId,
+      concept_id: conceptId,
+      count
+    });
+    return res.data;
+  },
+
+  async reviewFlashcard(flashcardId: string, grade: number): Promise<any> {
+    const res = await apiClient.post('/api/v1/revision/flashcards/review', {
+      flashcard_id: flashcardId,
+      grade
+    });
+    return res.data;
+  },
+
+  // Cognitive Learning Coach & Growth Profile
+  async getCoachRecommendations(studentId: string = 'default_student'): Promise<any[]> {
+    const res = await apiClient.get(`/api/v1/coach/recommendations?student_id=${studentId}`);
+    return res.data;
+  },
+
+  async updateCoachRecommendationStatus(recId: string, status: string): Promise<any> {
+    const res = await apiClient.post(`/api/v1/coach/recommendations/${recId}/status?status=${status}`);
+    return res.data;
+  },
+
+  async getLearningIdentity(studentId: string = 'default_student'): Promise<any> {
+    const res = await apiClient.get(`/api/v1/coach/identity?student_id=${studentId}`);
+    return res.data;
+  },
+
+  async addStudentProject(projectData: any, studentId: string = 'default_student'): Promise<any> {
+    const res = await apiClient.post(`/api/v1/coach/projects?student_id=${studentId}`, projectData);
+    return res.data;
+  },
+
+  async streamCoachAdvice(
+    query: string,
+    onToken: (token: string) => void,
+    studentId: string = 'default_student',
+    signal?: AbortSignal
+  ): Promise<void> {
+    return streamSSE('/api/v1/coach/stream', { student_id: studentId, query }, onToken, signal);
+  },
+
+  // FuturePath AI (Career & Skills Guidance)
+  async getCareerPathways(subject: string = 'electronics'): Promise<any[]> {
+    const res = await apiClient.get(`/api/v1/career/pathways/${encodeURIComponent(subject)}`);
+    return res.data;
+  },
+
+  async analyzeCareerSkillGap(pathwayTitle: string, studentId: string = 'default_student'): Promise<any> {
+    const res = await apiClient.get(`/api/v1/career/gap-analysis?pathway_title=${encodeURIComponent(pathwayTitle)}&student_id=${studentId}`);
+    return res.data;
+  },
+
+  async generateCareerRoadmap(pathwayTitle: string, studentId: string = 'default_student'): Promise<any> {
+    const res = await apiClient.post(`/api/v1/career/roadmap?pathway_title=${encodeURIComponent(pathwayTitle)}&student_id=${studentId}`);
+    return res.data;
+  },
+
+  // Focus Intelligence & Wellness
+  async getFocusDashboard(): Promise<any> {
+    const res = await apiClient.get('/api/v1/focus/dashboard');
+    return res.data;
+  },
+
+  async startFocusSession(subject: string, targetDurationMinutes: number = 25, studyGoals?: string): Promise<any> {
+    const res = await apiClient.post('/api/v1/focus/session/start', {
+      subject,
+      target_duration_minutes: targetDurationMinutes,
+      study_goals: studyGoals
+    });
+    return res.data;
+  },
+
+  async endFocusSession(data: {
+    session_id: string;
+    actual_duration_seconds: number;
+    distraction_count?: number;
+    distraction_notes?: string[];
+    reflection?: string;
+    productivity_rating?: number;
+  }): Promise<any> {
+    const res = await apiClient.post('/api/v1/focus/session/end', data);
+    return res.data;
+  },
+
+  async logWellness(data: {
+    log_date: string;
+    bedtime: string;
+    wake_time: string;
+    sleep_duration_hours: number;
+    energy_level: number;
+    study_readiness: number;
+    notes?: string;
+  }): Promise<any> {
+    const res = await apiClient.post('/api/v1/focus/wellness', data);
+    return res.data;
+  },
+
+  // Parent Connect Portal
+  async getStudentLinkCode(studentId: string = 'default_student'): Promise<{ link_code: string; student_id: string }> {
+    const res = await apiClient.get(`/api/v1/parent/code?student_id=${studentId}`);
+    return res.data;
+  },
+
+  async linkParentAccount(parentName: string, parentEmail: string, linkCode: string): Promise<any> {
+    const res = await apiClient.post('/api/v1/parent/link', {
+      parent_name: parentName,
+      parent_email: parentEmail,
+      link_code: linkCode
+    });
+    return res.data;
+  },
+
+  async getParentDashboard(studentId: string = 'default_student'): Promise<any> {
+    const res = await apiClient.get(`/api/v1/parent/dashboard?student_id=${studentId}`);
+    return res.data;
+  },
+
+  // Institution / Teacher Mode
+  async getInstitutionDashboard(): Promise<any> {
+    const res = await apiClient.get('/api/v1/institution/dashboard');
+    return res.data;
+  },
+
+  async createClassroom(name: string, subject: string, teacherName: string): Promise<any> {
+    const res = await apiClient.post('/api/v1/institution/classrooms', {
+      name,
+      subject,
+      teacher_name: teacherName
+    }, { headers: { 'X-Guru-Role': 'teacher' } });
+    return res.data;
+  },
+
+  async createAssignment(data: {
+    classroom_id: string;
+    title: string;
+    topic?: string;
+    document_id?: string;
+    due_date: string;
+    instructions: string;
+  }): Promise<any> {
+    const res = await apiClient.post('/api/v1/institution/assignments', data, {
+      headers: { 'X-Guru-Role': 'teacher' }
+    });
+    return res.data;
   },
 };
 
