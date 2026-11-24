@@ -165,6 +165,6 @@ Next.js 14 dynamic imports with fallback loaders are utilized for all heavy inte
 - **Rate Limiting:** Sliding-window rate limiters on sensitive linking endpoints.
 
 ---
-
+apply for this code on off campus: C24HYY
 ## 👥 License
 Licensed under the [MIT License](LICENSE).
